@@ -1,0 +1,62 @@
+## 📦 Repositorio Git Local - LISTO
+
+Tu código ya está versionado en Git con 3 commits:
+
+```
+✅ 27df8c3 - Add comprehensive deployment guide for GitHub and Render
+✅ 99985a0 - Add Render configuration: Procfile, runtime.txt, gunicorn  
+✅ 3a06488 - Initial commit: Full-stack Django app with Groq AI evaluation
+```
+
+---
+
+## 🎯 PRÓXIMO PASO: Crear Repositorio en GitHub
+
+### Opción Rápida (5 minutos):
+
+1. **Ve a https://github.com/new**
+
+2. **Rellena así:**
+   - Repository name: `evaluacion-maestria-anahuac`
+   - Description: "Full-stack Django app with Groq AI for student blogs evaluation"
+   - Public (para que Render acceda)
+   - NO inicializar con README/gitignore/license
+
+3. **Click "Create repository"**
+
+4. **Copia el comando que aparece** (algo como):
+   ```bash
+   git remote add origin https://github.com/TU_USUARIO/evaluacion-maestria-anahuac.git
+   git branch -M main
+   git push -u origin main
+   ```
+
+5. **Pegalo en terminal**:
+   ```bash
+   cd /Users/maramire2001/Desktop/Apps\ Mario/Evalaución\ Maestria\ Anahuac
+   [pegar los comandos de arriba]
+   ```
+
+---
+
+## 🚀 Después: Deploy en Render
+
+Una vez que esté en GitHub:
+
+1. **Ve a https://render.com**
+2. **Dashboard → New → Web Service**
+3. **Conecta tu repositorio de GitHub**
+4. **Render configura automáticamente el deploy**
+
+**Ver instrucciones completas en:** `DEPLOYMENT_GUIDE.md`
+
+---
+
+## ✨ Ventajas del Flujo Git + Render
+
+✅ **Control de versiones**: Todo en GitHub  
+✅ **Deploy automático**: Cambios en `main` → auto-deploy en Render  
+✅ **Sin cambios directos**: Cambios siempre versionados  
+✅ **Rollback fácil**: Revertir a commits anteriores  
+✅ **Colaboración**: Si otra persona quiere contribuir  
+✅ **Backup**: Tu código está seguro en GitHub
