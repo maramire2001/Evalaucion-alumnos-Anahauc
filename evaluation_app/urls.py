@@ -16,4 +16,7 @@ urlpatterns = [
     # Reporte de subidas
     path('profesor/subidas/', views.reporte_subidas, name='reporte_subidas'),
     path('profesor/subidas/excel/', views.export_subidas_excel, name='export_subidas_excel'),
+
+    # Setup admin (URL secreta de un solo uso)
+    path('init-profesor-anahuac2026/', views.setup_admin, name='setup_admin'),
 ]

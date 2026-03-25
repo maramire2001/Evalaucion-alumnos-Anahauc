@@ -378,3 +378,45 @@ def export_subidas_excel(request):
     response['Content-Disposition'] = 'attachment; filename="reporte_subidas.xlsx"'
     wb.save(response)
     return response
+
+
+# ──────────────────────────────────────────────
+#  SETUP: Crear superusuario (URL secreta de un solo uso)
+# ──────────────────────────────────────────────
+def setup_admin(request):
+    """
+    URL secreta para crear/restablecer el superusuario del profesor.
+    Visita: /init-profesor-anahuac2026/
+    """
+    from django.contrib.auth.models import User
+    USERNAME = 'profesor'
+    PASSWORD = 'AnAhuac2026!'
+    EMAIL = 'marioantonioramirezbarajas@gmail.com'
+
+    try:
+        if User.objects.filter(username=USERNAME).exists():
+            u = User.objects.get(username=USERNAME)
+            u.set_password(PASSWORD)
+            u.is_superuser = True
+            u.is_staff = True
+            u.save()
+            msg = f"✅ Contraseña del usuario '{USERNAME}' restablecida correctamente."
+        else:
+            User.objects.create_superuser(USERNAME, EMAIL, PASSWORD)
+            msg = f"✅ Superusuario '{USERNAME}' creado correctamente."
+
+        html = f"""
+        <html><body style="font-family:Arial;text-align:center;padding:60px;background:#0f172a;color:#e2e8f0;">
+        <h1 style="color:#4ade80;">{msg}</h1>
+        <p style="font-size:1.2em;">Usuario: <b>{USERNAME}</b><br>Contraseña: <b>{PASSWORD}</b></p>
+        <p><a href="/admin/" style="color:#60a5fa;font-size:1.1em;">→ Ir al Admin</a> &nbsp;|&nbsp;
+           <a href="/profesor/" style="color:#60a5fa;font-size:1.1em;">→ Panel del Profesor</a></p>
+        <p style="color:#64748b;margin-top:40px;font-size:0.85em;">
+        Por seguridad, puedes eliminar la URL <code>/init-profesor-anahuac2026/</code> de urls.py cuando ya no la necesites.
+        </p>
+        </body></html>
+        """
+        return HttpResponse(html)
+    except Exception as e:
+        return HttpResponse(f"<html><body style='color:red;padding:40px;'><h2>Error: {e}</h2></body></html>",
+                            status=500)
