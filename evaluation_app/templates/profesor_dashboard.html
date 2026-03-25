@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel del Profesor | Anáhuac Maestría</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blue-dark: #1E3A8A;
+            --blue-mid: #2563EB;
+            --blue-light: #DBEAFE;
+            --orange: #F97316;
+            --orange-light: #FFF7ED;
+            --red: #EF4444;
+            --green: #22C55E;
+            --yellow: #EAB308;
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --border: #E2E8F0;
+            --text: #1E293B;
+            --muted: #64748B;
+            --success-bg: #F0FDF4;
+            --success-text: #166534;
+            --warn-bg: #FEFCE8;
+            --warn-text: #854D0E;
+            --danger-bg: #FEF2F2;
+            --danger-text: #991B1B;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        /* ── Top Bar ── */
+        .topbar {
+            background: linear-gradient(135deg, var(--blue-dark), #1E40AF);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .topbar-brand { display: flex; align-items: center; gap: 1rem; }
+        .brand-icon {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, var(--orange), #DC2626);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1.2rem; border: 2px solid rgba(255,255,255,0.3);
+        }
+        .brand-text { font-size: 1.2rem; font-weight: 700; }
+        .brand-sub { font-size: 0.75rem; opacity: 0.8; }
+        .topbar-actions { display: flex; gap: 0.75rem; align-items: center; }
+        .btn-topbar {
+            padding: 0.5rem 1.2rem; border-radius: 8px; border: none;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;
+            transition: all 0.15s;
+        }
+        .btn-orange { background: var(--orange); color: white; }
+        .btn-orange:hover { background: #EA580C; }
+        .btn-white { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); }
+        .btn-white:hover { background: rgba(255,255,255,0.25); }
+
+        /* ── Stats ── */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 1rem; padding: 1.5rem 2rem 0;
+        }
+        .stat-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1.25rem 1.5rem;
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .stat-icon {
+            width: 48px; height: 48px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+        }
+        .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--blue-dark); }
+        .stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+
+        /* ── Table section ── */
+        .section { padding: 1.5rem 2rem; }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1rem;
+        }
+        .section-title { font-size: 1.15rem; font-weight: 700; color: var(--blue-dark); }
+        .search-bar {
+            padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 0.9rem; width: 250px; outline: none;
+        }
+        .search-bar:focus { border-color: var(--blue-mid); }
+
+        .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: linear-gradient(135deg, var(--blue-dark), #1E40AF); }
+        thead th { color: white; padding: 0.85rem 1rem; text-align: left; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+        tbody tr:hover { background: var(--blue-light); }
+        tbody tr:last-child { border-bottom: none; }
+        td { padding: 0.75rem 1rem; font-size: 0.88rem; vertical-align: middle; }
+
+        /* Score badges */
+        .score-badge {
+            display: inline-block; padding: 0.3rem 0.7rem; border-radius: 20px;
+            font-weight: 700; font-size: 0.9rem;
+        }
+        .score-good { background: var(--success-bg); color: var(--success-text); }
+        .score-mid { background: var(--warn-bg); color: var(--warn-text); }
+        .score-bad { background: var(--danger-bg); color: var(--danger-text); }
+
+        /* Action buttons */
+        .btn-sm {
+            padding: 0.35rem 0.75rem; border-radius: 6px; border: none;
+            font-size: 0.78rem; font-weight: 600; cursor: pointer;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;
+            transition: all 0.15s; white-space: nowrap;
+        }
+        .btn-blue { background: var(--blue-light); color: var(--blue-dark); }
+        .btn-blue:hover { background: #BFDBFE; }
+        .btn-green { background: var(--success-bg); color: var(--success-text); }
+        .btn-green:hover { background: #DCFCE7; }
+        .btn-gray { background: #F1F5F9; color: var(--text); }
+        .btn-gray:hover { background: #E2E8F0; }
+        .btn-danger { background: var(--danger-bg); color: var(--danger-text); }
+        .btn-danger:hover { background: #FECACA; }
+
+        /* Modal portada */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7); z-index: 1000;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: white; border-radius: 16px; padding: 1.5rem;
+            max-width: 640px; width: 92%; position: relative;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--blue-dark); }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--muted); }
+        .modal-img { width: 100%; border-radius: 8px; border: 1px solid var(--border); }
+        .modal-loading { text-align: center; padding: 2rem; color: var(--muted); }
+
+        /* Detail accordion */
+        .detail-row { background: #F8FAFC !important; }
+        .detail-cell { padding: 0 !important; }
+        .detail-inner {
+            padding: 1rem 1.5rem;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;
+        }
+        .justif-card {
+            background: white; border: 1px solid var(--border); border-radius: 8px;
+            padding: 0.85rem 1rem;
+        }
+        .justif-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+        .justif-text { font-size: 0.85rem; color: var(--text); line-height: 1.5; }
+
+        /* Rank number */
+        .rank { font-weight: 700; color: var(--muted); }
+        .rank-1 { color: #B45309; }
+        .rank-2 { color: #475569; }
+        .rank-3 { color: #92400E; }
+
+        /* Empty state */
+        .empty-state {
+            padding: 3rem; text-align: center; color: var(--muted);
+        }
+        .empty-state .emoji { font-size: 3rem; margin-bottom: 1rem; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .section { padding: 1rem; }
+            .topbar { padding: 1rem; flex-direction: column; gap: 0.75rem; }
+            .topbar-actions { flex-wrap: wrap; justify-content: center; }
+        }
+        @media (max-width: 600px) {
+            .stats-row { grid-template-columns: 1fr; }
+            .detail-inner { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+    <div class="topbar-brand">
+        <div class="brand-icon">A</div>
+        <div>
+            <div class="brand-text">Panel del Profesor</div>
+            <div class="brand-sub">Evaluación Maestría en Métodos Cuantitativos · Anáhuac</div>
+        </div>
+    </div>
+    <div class="topbar-actions">
+        <a href="{% url 'export' %}" class="btn-topbar btn-orange">📊 Exportar Excel</a>
+        <a href="{% url 'download_all_pdfs' %}" class="btn-topbar btn-white">📦 Bajar todos los PDFs</a>
+        <a href="/admin/" class="btn-topbar btn-white">⚙️ Admin</a>
+        <a href="/admin/logout/" class="btn-topbar btn-white">🚪 Salir</a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#DBEAFE">👨‍🎓</div>
+        <div>
+            <div class="stat-num">{{ total_alumnos }}</div>
+            <div class="stat-label">Alumnos registrados</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#F0FDF4">📄</div>
+        <div>
+            <div class="stat-num">{{ total_entregas }}</div>
+            <div class="stat-label">Entregas recibidas</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#FFF7ED">⭐</div>
+        <div>
+            <div class="stat-num">{{ promedio }}</div>
+            <div class="stat-label">Promedio del grupo /10</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background:#FEF9C3">🤖</div>
+        <div>
+            <div class="stat-num">IA</div>
+            <div class="stat-label">Calificado por Groq AI</div>
+        </div>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="section">
+    <div class="section-header">
+        <div class="section-title">📋 Entregas y Calificaciones</div>
+        <input class="search-bar" type="text" id="searchInput" placeholder="🔍 Buscar alumno..." onkeyup="filterTable()">
+    </div>
+
+    <div class="table-wrap">
+        {% if grade_data %}
+        <table id="gradesTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Alumno</th>
+                    <th>ID</th>
+                    <th>Calif. Final</th>
+                    <th>Blog</th>
+                    <th>PDF</th>
+                    <th>Portada</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in grade_data %}
+                {% with g=item.grade j=item.justificaciones %}
+                <tr class="main-row" data-name="{{ g.submission.student.name|lower }}">
+                    <td>
+                        <span class="rank {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% endif %}">
+                            {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
+                        </span>
+                    </td>
+                    <td><strong>{{ g.submission.student.name }}</strong></td>
+                    <td style="color:var(--muted)">{{ g.submission.student.student_id }}</td>
+                    <td>
+                        <span class="score-badge {% if g.final_score >= 8 %}score-good{% elif g.final_score >= 6 %}score-mid{% else %}score-bad{% endif %}">
+                            {{ g.final_score|floatformat:2 }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ g.submission.blog_url }}" target="_blank" class="btn-sm btn-blue">🌐 Ver blog</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'download_pdf' g.submission.id %}" class="btn-sm btn-green">⬇️ PDF</a>
+                    </td>
+                    <td>
+                        <button class="btn-sm btn-gray" onclick="verPortada({{ g.submission.id }}, '{{ g.submission.student.name }}')">
+                            🖼️ Portada
+                        </button>
+                    </td>
+                    <td style="color:var(--muted); font-size:0.8rem">
+                        {{ g.submission.submitted_at|date:"d/m/Y H:i" }}
+                    </td>
+                    <td>
+                        <button class="btn-sm btn-gray" onclick="toggleDetail({{ forloop.counter }})">📝 Detalle</button>
+                        <button class="btn-sm btn-danger" onclick="recalcular({{ g.submission.id }}, this)">🔄 Recalc.</button>
+                    </td>
+                </tr>
+                <tr class="detail-row" id="detail-{{ forloop.counter }}" style="display:none">
+                    <td class="detail-cell" colspan="9">
+                        <div class="detail-inner">
+                            <div class="justif-card">
+                                <div class="justif-label">📊 Cantidad / Regularidad (35%)</div>
+                                <div class="justif-text">{{ j.justificaciones.cantidad|default:"Sin datos" }}</div>
+                            </div>
+                            <div class="justif-card">
+                                <div class="justif-label">✍️ Calidad del Contenido (35%)</div>
+                                <div class="justif-text">{{ j.justificaciones.calidad|default:"Sin datos" }}</div>
+                            </div>
+                            <div class="justif-card">
+                                <div class="justif-label">🎨 Presentación y Diseño (10%)</div>
+                                <div class="justif-text">{{ j.justificaciones.presentacion|default:"Sin datos" }}</div>
+                            </div>
+                            <div class="justif-card">
+                                <div class="justif-label">🔬 Protocolo de Investigación (20%)</div>
+                                <div class="justif-text">{{ j.justificaciones.protocolo|default:"Sin datos" }}</div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="emoji">📭</div>
+            <strong>Sin entregas todavía</strong>
+            <p style="margin-top:0.5rem">Cuando los alumnos envíen sus trabajos aparecerán aquí.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal portada -->
+<div class="modal-overlay" id="modalOverlay" onclick="cerrarModal(event)">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">Portada del trabajo</div>
+            <button class="modal-close" onclick="cerrarModalBtn()">✕</button>
+        </div>
+        <div id="modalBody">
+            <div class="modal-loading">Cargando portada...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleDetail(idx) {
+    const row = document.getElementById('detail-' + idx);
+    row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+function verPortada(subId, nombre) {
+    document.getElementById('modalTitle').textContent = '🖼️ Portada – ' + nombre;
+    document.getElementById('modalBody').innerHTML = '<div class="modal-loading">⏳ Generando captura...</div>';
+    document.getElementById('modalOverlay').classList.add('open');
+    const img = new Image();
+    img.onload = function() {
+        document.getElementById('modalBody').innerHTML = '<img class="modal-img" src="' + img.src + '">';
+    };
+    img.onerror = function() {
+        document.getElementById('modalBody').innerHTML = '<p style="text-align:center;color:var(--muted);padding:2rem">No se pudo generar la vista previa del PDF.<br><a href="/profesor/descargar/' + subId + '/" style="color:var(--blue-mid)">Descargar PDF directamente</a></p>';
+    };
+    img.src = '/profesor/portada/' + subId + '/';
+}
+
+function cerrarModal(e) {
+    if (e.target.id === 'modalOverlay') cerrarModalBtn();
+}
+function cerrarModalBtn() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.getElementById('modalBody').innerHTML = '<div class="modal-loading">Cargando portada...</div>';
+}
+
+function filterTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('.main-row').forEach(row => {
+        const name = row.getAttribute('data-name') || '';
+        row.style.display = name.includes(q) ? '' : 'none';
+    });
+}
+
+function recalcular(subId, btn) {
+    if (!confirm('¿Recalcular calificación con IA? Esto tarda unos segundos.')) return;
+    btn.disabled = true;
+    btn.textContent = '⏳ Calculando...';
+    fetch('/profesor/recalcular/' + subId + '/', {method:'POST', headers:{'X-CSRFToken': getCookie('csrftoken')}})
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                alert('✅ Calificación actualizada: ' + data.final_score);
+                location.reload();
+            } else {
+                alert('❌ Error: ' + data.error);
+                btn.disabled = false;
+                btn.textContent = '🔄 Recalc.';
+            }
+        })
+        .catch(() => { btn.disabled = false; btn.textContent = '🔄 Recalc.'; });
+}
+
+function getCookie(name) {
+    let v = null;
+    if (document.cookie && document.cookie !== '') {
+        document.cookie.split(';').forEach(c => {
+            const t = c.trim();
+            if (t.startsWith(name + '=')) v = decodeURIComponent(t.slice(name.length + 1));
+        });
+    }
+    return v;
+}
+</script>
+</body>
+</html>
