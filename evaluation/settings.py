@@ -83,15 +83,9 @@ WSGI_APPLICATION = 'evaluation.wsgi.application'
 # Usa PostgreSQL en producción (Render), SQLite en local
 import dj_database_url
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=True,
-        )
-    }
+_db_url = os.environ.get('DATABASE_URL', '').strip()
+if _db_url:
+    DATABASES = {'default': dj_database_url.parse(_db_url, conn_max_age=600)}
 else:
     DATABASES = {
         'default': {
