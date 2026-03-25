@@ -61,16 +61,16 @@ def profesor_dashboard(request):
         'submission__student'
     ).order_by('-final_score')
 
-    # Parsear justificaciones JSON para cada calificación
+    # Parsear JSON completo (incluye scores por criterio y justificaciones)
     grade_data = []
     for g in grades:
         try:
-            justificaciones = json.loads(g.adjustments) if g.adjustments else {}
+            datos = json.loads(g.adjustments) if g.adjustments else {}
         except (json.JSONDecodeError, TypeError):
-            justificaciones = {}
+            datos = {}
         grade_data.append({
             'grade': g,
-            'justificaciones': justificaciones,
+            'justificaciones': datos,   # contiene scores, entradas_detectadas y justificaciones
         })
 
     # Estadísticas resumen
@@ -288,5 +288,93 @@ def export_grades(request):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
     response['Content-Disposition'] = 'attachment; filename=calificaciones_maestria.xlsx'
+    wb.save(response)
+    return response
+
+
+# ──────────────────────────────────────────────
+#  REPORTE DE SUBIDAS
+# ──────────────────────────────────────────────
+@login_required(login_url='/admin/login/')
+def reporte_subidas(request):
+    """Vista con tabla de quién subió, cuándo y qué."""
+    submissions = Submission.objects.select_related('student').order_by('-submitted_at')
+    return render(request, 'reporte_subidas.html', {'submissions': submissions})
+
+
+@login_required(login_url='/admin/login/')
+def export_subidas_excel(request):
+    """Exporta el reporte de subidas a Excel."""
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    import openpyxl
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Reporte de Subidas"
+
+    # Header
+    header_fill = PatternFill(start_color="1E3A8A", end_color="1E3A8A", fill_type="solid")
+    header_font = Font(color="FFFFFF", bold=True, size=10, name="Arial")
+    thin = Border(
+        left=Side(style='thin', color='CBD5E1'),
+        right=Side(style='thin', color='CBD5E1'),
+        top=Side(style='thin', color='CBD5E1'),
+        bottom=Side(style='thin', color='CBD5E1'),
+    )
+    center = Alignment(horizontal='center', vertical='center')
+
+    ws.merge_cells('A1:G1')
+    ws['A1'] = 'REPORTE DE SUBIDAS — Seminario de Integración Anáhuac 2026'
+    ws['A1'].font = Font(bold=True, size=13, color="FFFFFF", name="Arial")
+    ws['A1'].fill = header_fill
+    ws['A1'].alignment = center
+    ws.row_dimensions[1].height = 26
+
+    headers = ['#', 'Alumno', 'ID del Alumno', 'Fecha de Subida', 'Hora',
+               'URL del Blog', 'Archivo PDF']
+    ws.append(headers)
+    for col, cell in enumerate(ws[2], 1):
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = center
+        cell.border = thin
+
+    col_widths = [5, 30, 15, 16, 10, 50, 35]
+    for i, w in enumerate(col_widths, 1):
+        from openpyxl.utils import get_column_letter
+        ws.column_dimensions[get_column_letter(i)].width = w
+
+    submissions = Submission.objects.select_related('student').order_by('-submitted_at')
+    alt_fill = PatternFill(start_color="F0F4FF", end_color="F0F4FF", fill_type="solid")
+    for idx, sub in enumerate(submissions, 1):
+        fecha = sub.submitted_at.strftime('%d/%m/%Y') if sub.submitted_at else ''
+        hora  = sub.submitted_at.strftime('%H:%M:%S') if sub.submitted_at else ''
+        pdf_nombre = str(sub.pdf_file).split('/')[-1] if sub.pdf_file else '—'
+        row = [idx, sub.student.name, sub.student.student_id,
+               fecha, hora, sub.blog_url, pdf_nombre]
+        ws.append(row)
+        r = ws.max_row
+        ws.row_dimensions[r].height = 22
+        for col_i, cell in enumerate(ws[r], 1):
+            cell.border = thin
+            cell.alignment = Alignment(
+                horizontal='left' if col_i in [2, 6, 7] else 'center',
+                vertical='center'
+            )
+            cell.font = Font(size=10, name="Arial")
+            if idx % 2 == 0:
+                cell.fill = alt_fill
+
+    # Fila de totales
+    ws.append([])
+    tr = ws.max_row + 1
+    ws.cell(tr, 2, f"TOTAL: {submissions.count()} entregas").font = Font(bold=True, name="Arial")
+    ws.cell(tr, 2).fill = PatternFill(start_color="F97316", end_color="F97316", fill_type="solid")
+    ws.cell(tr, 2).font = Font(bold=True, color="FFFFFF", name="Arial")
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="reporte_subidas.xlsx"'
     wb.save(response)
     return response

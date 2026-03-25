@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Subidas | Anáhuac</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --blue: #1E3A8A; --orange: #F97316; --bg: #F8FAFC; --border: #E2E8F0; --text: #1E293B; --muted: #64748B; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); }
+        .topbar { background: linear-gradient(135deg, var(--blue), #1E40AF); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .topbar-title { font-size: 1.15rem; font-weight: 700; }
+        .topbar-sub { font-size: 0.78rem; opacity: 0.8; margin-top: 2px; }
+        .btn { padding: 0.5rem 1.2rem; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.15s; }
+        .btn-orange { background: var(--orange); color: white; }
+        .btn-orange:hover { background: #EA580C; }
+        .btn-white { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); }
+        .btn-white:hover { background: rgba(255,255,255,0.25); }
+        .section { padding: 1.5rem 2rem; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--blue); }
+        .stats-bar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .stat { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+        .stat-num { font-size: 1.6rem; font-weight: 800; color: var(--blue); }
+        .stat-label { font-size: 0.75rem; color: var(--muted); }
+        .table-wrap { background: white; border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        thead { background: linear-gradient(135deg, var(--blue), #1E40AF); }
+        thead th { color: white; padding: 0.8rem 1rem; text-align: left; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+        tbody tr:hover { background: #EFF6FF; }
+        tbody tr:last-child { border-bottom: none; }
+        td { padding: 0.7rem 1rem; font-size: 0.88rem; vertical-align: middle; }
+        .rank { font-weight: 700; color: var(--muted); text-align: center; }
+        .badge-fecha { background: #DBEAFE; color: var(--blue); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+        .badge-hora { background: #F0FDF4; color: #166534; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; }
+        .btn-sm { padding: 0.3rem 0.65rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem; border: none; cursor: pointer; }
+        .btn-blue-sm { background: #DBEAFE; color: var(--blue); }
+        .btn-green-sm { background: #DCFCE7; color: #166534; }
+        input[type=text] { padding: 0.45rem 0.9rem; border: 1px solid var(--border); border-radius: 7px; font-size: 0.88rem; width: 220px; outline: none; }
+        input[type=text]:focus { border-color: #2563EB; }
+        @media (max-width: 700px) { .section { padding: 1rem; } .topbar { flex-direction: column; gap: 0.75rem; } }
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <div>
+        <div class="topbar-title">📥 Reporte de Subidas — Seminario Anáhuac</div>
+        <div class="topbar-sub">Registro completo de entregas por alumno</div>
+    </div>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+        <a href="{% url 'export_subidas_excel' %}" class="btn btn-orange">📊 Descargar Excel</a>
+        <a href="{% url 'profesor_dashboard' %}" class="btn btn-white">← Volver al Panel</a>
+    </div>
+</div>
+
+<div class="section">
+    <div class="stats-bar">
+        <div class="stat">
+            <div style="font-size:1.6rem">📄</div>
+            <div><div class="stat-num">{{ submissions|length }}</div><div class="stat-label">Total de entregas</div></div>
+        </div>
+        {% if submissions %}
+        <div class="stat">
+            <div style="font-size:1.6rem">📅</div>
+            <div><div class="stat-num" style="font-size:1rem">{{ submissions.first.submitted_at|date:"d/m/Y" }}</div><div class="stat-label">Última entrega</div></div>
+        </div>
+        <div class="stat">
+            <div style="font-size:1.6rem">📅</div>
+            <div><div class="stat-num" style="font-size:1rem">{{ submissions.last.submitted_at|date:"d/m/Y" }}</div><div class="stat-label">Primera entrega</div></div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="section-header">
+        <div class="section-title">📋 Detalle de Entregas</div>
+        <input type="text" id="searchInput" placeholder="🔍 Buscar alumno..." onkeyup="filtrar()">
+    </div>
+
+    <div class="table-wrap">
+        {% if submissions %}
+        <table id="tablaSubidas">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Alumno</th>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Blog</th>
+                    <th>PDF</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in submissions %}
+                <tr data-name="{{ sub.student.name|lower }}">
+                    <td class="rank">{{ forloop.counter }}</td>
+                    <td><strong>{{ sub.student.name }}</strong></td>
+                    <td style="color:var(--muted);font-size:0.82rem">{{ sub.student.student_id }}</td>
+                    <td><span class="badge-fecha">{{ sub.submitted_at|date:"d/m/Y" }}</span></td>
+                    <td><span class="badge-hora">{{ sub.submitted_at|time:"H:i" }}</span></td>
+                    <td>
+                        <a href="{{ sub.blog_url }}" target="_blank" class="btn-sm btn-blue-sm">🌐 Ver blog</a>
+                        <span style="font-size:0.75rem;color:var(--muted);display:block;margin-top:2px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ sub.blog_url }}</span>
+                    </td>
+                    <td>
+                        <a href="{% url 'download_pdf' sub.id %}" class="btn-sm btn-green-sm">⬇️ PDF</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="padding:3rem;text-align:center;color:var(--muted)">
+            <div style="font-size:3rem;margin-bottom:1rem">📭</div>
+            <strong>Sin entregas todavía</strong>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function filtrar() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('#tablaSubidas tbody tr').forEach(row => {
+        row.style.display = (row.getAttribute('data-name') || '').includes(q) ? '' : 'none';
+    });
+}
+</script>
+</body>
+</html>

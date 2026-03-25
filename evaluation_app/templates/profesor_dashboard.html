@@ -198,6 +198,7 @@
     <div class="topbar-actions">
         <a href="{% url 'export' %}" class="btn-topbar btn-orange">📊 Exportar Excel</a>
         <a href="{% url 'download_all_pdfs' %}" class="btn-topbar btn-white">📦 Bajar todos los PDFs</a>
+        <a href="{% url 'reporte_subidas' %}" class="btn-topbar btn-white">📥 Reporte de Subidas</a>
         <a href="/admin/" class="btn-topbar btn-white">⚙️ Admin</a>
         <a href="/admin/logout/" class="btn-topbar btn-white">🚪 Salir</a>
     </div>
@@ -297,19 +298,20 @@
                     <td class="detail-cell" colspan="9">
                         <div class="detail-inner">
                             <div class="justif-card">
-                                <div class="justif-label">📊 Cantidad / Regularidad (35%)</div>
+                                <div class="justif-label">📊 Cantidad / Regularidad (35%) &nbsp;·&nbsp; <strong>{{ j.cantidad_score|default:"—" }}/10</strong></div>
+                                <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.4rem">📝 Entradas detectadas en el blog: <strong>{{ j.n_entradas|default:j.entradas_detectadas|default:"?" }}</strong></div>
                                 <div class="justif-text">{{ j.justificaciones.cantidad|default:"Sin datos" }}</div>
                             </div>
                             <div class="justif-card">
-                                <div class="justif-label">✍️ Calidad del Contenido (35%)</div>
+                                <div class="justif-label">✍️ Calidad del Contenido (35%) &nbsp;·&nbsp; <strong>{{ j.calidad_score|default:"—" }}/10</strong></div>
                                 <div class="justif-text">{{ j.justificaciones.calidad|default:"Sin datos" }}</div>
                             </div>
                             <div class="justif-card">
-                                <div class="justif-label">🎨 Presentación y Diseño (10%)</div>
+                                <div class="justif-label">🎨 Presentación y Diseño (10%) &nbsp;·&nbsp; <strong>{{ j.presentacion_score|default:"—" }}/10</strong></div>
                                 <div class="justif-text">{{ j.justificaciones.presentacion|default:"Sin datos" }}</div>
                             </div>
                             <div class="justif-card">
-                                <div class="justif-label">🔬 Protocolo de Investigación (20%)</div>
+                                <div class="justif-label">🔬 Protocolo de Investigación (20%) &nbsp;·&nbsp; <strong>{{ j.protocolo_score|default:"—" }}/10</strong></div>
                                 <div class="justif-text">{{ j.justificaciones.protocolo|default:"Sin datos" }}</div>
                             </div>
                         </div>

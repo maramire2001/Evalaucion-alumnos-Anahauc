@@ -12,4 +12,8 @@ urlpatterns = [
     path('profesor/descargar-todos/', views.download_all_pdfs, name='download_all_pdfs'),
     path('profesor/portada/<int:submission_id>/', views.pdf_portada, name='pdf_portada'),
     path('profesor/recalcular/<int:submission_id>/', views.recalcular_calificacion, name='recalcular'),
+
+    # Reporte de subidas
+    path('profesor/subidas/', views.reporte_subidas, name='reporte_subidas'),
+    path('profesor/subidas/excel/', views.export_subidas_excel, name='export_subidas_excel'),
 ]
