@@ -83,10 +83,11 @@ WSGI_APPLICATION = 'evaluation.wsgi.application'
 # Usa PostgreSQL en producción (Render), SQLite en local
 import dj_database_url
 
-_db_url = os.environ.get('DATABASE_URL', '').strip()
-if _db_url:
+try:
+    _db_url = (os.environ.get('DATABASE_URL') or '').strip()
+    assert _db_url.startswith(('postgres', 'postgresql'))
     DATABASES = {'default': dj_database_url.parse(_db_url, conn_max_age=600)}
-else:
+except Exception:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
