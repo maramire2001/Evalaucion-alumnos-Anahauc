@@ -10,7 +10,10 @@ class Student(models.Model):
 class Submission(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     blog_url = models.URLField()
-    pdf_file = models.FileField(upload_to='pdfs/')
+    pdf_file = models.FileField(upload_to='pdfs/', blank=True, null=True)
+    # PDF guardado directo en PostgreSQL — no se pierde con reinicios
+    pdf_data = models.BinaryField(blank=True, null=True)
+    pdf_filename = models.CharField(max_length=255, blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

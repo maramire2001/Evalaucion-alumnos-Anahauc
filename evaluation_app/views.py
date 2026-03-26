@@ -34,10 +34,14 @@ def submit_assignment(request):
                 student.name = name
                 student.save()
 
+            # Leer PDF en memoria y guardar en DB (PostgreSQL permanente)
+            pdf_bytes = pdf_file.read() if pdf_file else None
+            pdf_name = pdf_file.name if pdf_file else ''
             submission = Submission.objects.create(
                 student=student,
                 blog_url=blog_url,
-                pdf_file=pdf_file
+                pdf_data=pdf_bytes,
+                pdf_filename=pdf_name,
             )
 
             # Grade automatically
@@ -91,14 +95,26 @@ def profesor_dashboard(request):
 def download_pdf(request, submission_id):
     """Descarga el PDF de una entrega específica."""
     submission = get_object_or_404(Submission, id=submission_id)
-    file_path = submission.pdf_file.path
-    if os.path.exists(file_path):
+    # Primero intentar desde la DB (nuevo sistema permanente)
+    if submission.pdf_data:
         student_name = submission.student.name.replace(' ', '_')
-        filename = f"trabajo_{student_name}.pdf"
-        response = FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+        filename = submission.pdf_filename or f"trabajo_{student_name}.pdf"
+        response = HttpResponse(bytes(submission.pdf_data), content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
-    return HttpResponse("PDF no encontrado", status=404)
+    # Fallback: filesystem (solo funciona si no hubo reinicio)
+    if submission.pdf_file:
+        try:
+            file_path = submission.pdf_file.path
+            if os.path.exists(file_path):
+                student_name = submission.student.name.replace(' ', '_')
+                filename = f"trabajo_{student_name}.pdf"
+                response = FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                return response
+        except Exception:
+            pass
+    return HttpResponse("PDF no encontrado. El alumno debe volver a subir su entrega.", status=404)
 
 
 @login_required(login_url='/admin/login/')
@@ -108,10 +124,17 @@ def download_all_pdfs(request):
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
         for sub in submissions:
-            if sub.pdf_file and os.path.exists(sub.pdf_file.path):
-                student_name = sub.student.name.replace(' ', '_')
-                arcname = f"{student_name}_{sub.student.student_id}.pdf"
-                zf.write(sub.pdf_file.path, arcname)
+            student_name = sub.student.name.replace(' ', '_')
+            arcname = f"{student_name}_{sub.student.student_id}.pdf"
+            if sub.pdf_data:
+                zf.writestr(arcname, bytes(sub.pdf_data))
+            elif sub.pdf_file:
+                try:
+                    fp = sub.pdf_file.path
+                    if os.path.exists(fp):
+                        zf.write(fp, arcname)
+                except Exception:
+                    pass
     buffer.seek(0)
     response = HttpResponse(buffer.read(), content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename="todos_los_trabajos.zip"'
