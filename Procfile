@@ -1,1 +1,1 @@
-web: python manage.py migrate --noinput && python crear_superusuario.py && gunicorn evaluation.wsgi --log-file -
+web: python manage.py migrate --noinput && gunicorn evaluation.wsgi --log-file -

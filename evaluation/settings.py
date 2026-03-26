@@ -83,9 +83,11 @@ WSGI_APPLICATION = 'evaluation.wsgi.application'
 # Usa PostgreSQL en producción (Render), SQLite en local
 import dj_database_url
 
+# PostgreSQL persistente — URL directa como fallback si la variable de entorno no está
+_db_url = (os.environ.get('DATABASE_URL') or
+    'postgresql://anahuac_db_user:HEEdjICPWRQ33eXobuNiEzd1nnq3tP19@dpg-d723c81r0fns73dntetg-a/anahuac_db'
+).strip()
 try:
-    _db_url = (os.environ.get('DATABASE_URL') or '').strip()
-    assert _db_url.startswith(('postgres', 'postgresql'))
     DATABASES = {'default': dj_database_url.parse(_db_url, conn_max_age=600)}
 except Exception:
     DATABASES = {
